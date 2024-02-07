@@ -9,7 +9,6 @@ string longestPalindrome(string &st1){
 		st+=st1[i];
 	}
 	st+="$";
-	cout<<st<<" ";
 	int n=st.size();
 	vector<int>dp(n,0);
 	int center=0,left=0,right=0;
@@ -24,7 +23,6 @@ string longestPalindrome(string &st1){
 			center=i;
 			right=i+dp[i];
 		}
-		// cout<<dp[i]<<" ";
 	}
 	int mxlen=0,j=0;
 	for(i=1;i<n;i++){
@@ -33,10 +31,7 @@ string longestPalindrome(string &st1){
 			j=i;
 		}
 	}
-	// mxlen/=2;
-	// cout<<mxlen<<" "<<j<<" ";
 	return st1.substr((j-mxlen)/2,mxlen);
-
 
 }
 
