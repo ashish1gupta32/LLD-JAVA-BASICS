@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class dummy {
     public static void main(String[] args) {
@@ -18,6 +19,10 @@ public class dummy {
         for(String val:lst){
             System.out.println(val);
         }
+//        random UUID
+        System.out.println(UUID.randomUUID());
+        System.out.println(UUID.randomUUID());
+        System.out.println(UUID.randomUUID());
 
 //        List<MyDTO> paginatedResult = resultList.subList(start, end);
 //
