@@ -1,6 +1,5 @@
 package lld.snakeLadder;
 
-
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -9,8 +8,10 @@ public class Game {
     private Dice dice;
     Player winner;
     Deque<Player> players = new LinkedList<>();
+    private GameListener listener;
 
-    Game() {
+    public Game(GameListener listener) {
+        this.listener = listener;
         initializeGame();
     }
 
@@ -28,48 +29,50 @@ public class Game {
         players.add(new Player());
     }
 
-    public void startGame() throws InterruptedException {
-        System.out.println("\n................GAME STARTED ............................\n");
+    public void startGame() {
+        if (listener != null) listener.onGameStart();
+        
+        int boardSize = board.cells.length * board.cells.length;
+        int maxPos = boardSize - 1;
+
         while (winner == null) {
-            System.out.println();
-            Thread.sleep(2000L);
-
             Player player = pickPlayer(players);
+            
+            if (listener != null) listener.onPlayerTurn(player.id, player.pos);
 
-            System.out.println(STR."Player turn is \{player.id} and current position is \{player.pos}");
+            int roll = dice.rollDice();
+            if (listener != null) listener.onDiceRoll(player.id, roll);
+            
+            int playerNewPosition = player.pos + roll;
 
-            int playerNewPosition = player.pos + dice.rollDice();
-
-            System.out.println(STR."Player \{player.id} new position is \{playerNewPosition}");
-
-            if (playerNewPosition > board.cells.length * board.cells.length - 1) {
+            if (playerNewPosition > maxPos) {
                 winner = player;
+                if (listener != null) listener.onWin(winner.id);
                 break;
             }
+            
             Cell posCell = board.getCell(playerNewPosition);
+            int finalPosition = processJumps(posCell.jump, playerNewPosition);
+            
+            if (listener != null) listener.onPlayerMove(player.id, player.pos, finalPosition);
 
+            player.pos = finalPosition;
 
-            playerNewPosition = jumpCheck(posCell.jump, playerNewPosition);
-            player.pos = playerNewPosition;
-
-
-            if (playerNewPosition > board.cells.length * board.cells.length - 1) {
+            if (player.pos > maxPos) {
                 winner = player;
+                if (listener != null) listener.onWin(winner.id);
                 break;
             }
         }
-
-        System.out.println(STR."\n..........Winner is \{winner.id}................");
-
     }
 
-    private int jumpCheck(Jump jump, int playerNewPosition) {
+    private int processJumps(Jump jump, int currentPos) {
         while (jump != null) {
-            System.out.println(STR."Found \{jump.type}(from \{jump.start} to \{jump.end}) on player new position \{playerNewPosition}");
-            playerNewPosition = jump.end;
-            jump = board.getCell(playerNewPosition).jump;
+            if (listener != null) listener.onJump(jump.type, jump.start, jump.end);
+            currentPos = jump.end;
+            jump = board.getCell(currentPos).jump;
         }
-        return playerNewPosition;
+        return currentPos;
     }
 
     private Player pickPlayer(Deque<Player> players) {
@@ -77,6 +80,4 @@ public class Game {
         players.addLast(player);
         return player;
     }
-
-
 }
