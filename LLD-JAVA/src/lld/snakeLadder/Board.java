@@ -6,7 +6,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Board {
     Cell[][] cells;
 
-
     Board(int snakeCnt, int ladderCnt, int rowCnt) {
         cells = new Cell[rowCnt][rowCnt];
         for (int i = 0; i < rowCnt; i++) {
@@ -19,29 +18,26 @@ public class Board {
 
     private void initializeJump(int snakeCnt, int ladderCnt) {
         Set<Integer> st = new HashSet<>();
+        int maxCells = cells.length * cells.length - 1;
+        
         while (ladderCnt > 0 || snakeCnt > 0) {
+            int start = ThreadLocalRandom.current().nextInt(1, maxCells);
+            int end = ThreadLocalRandom.current().nextInt(1, maxCells);
 
-            int start = ThreadLocalRandom.current().nextInt(1, cells.length * cells.length - 1);
-            int end = ThreadLocalRandom.current().nextInt(1, cells.length * cells.length - 1);
+            if (start == end || st.contains(start)) continue;
 
-            if (!st.contains(start) && start > end && snakeCnt > 0) {
+            if (start > end && snakeCnt > 0) {
                 st.add(start);
                 Cell cell = getCell(start);
                 cell.jump = new Jump(start, end, Type.SNAKE);
-                System.out.println(STR."\{cell.jump.type} jump created from \{start} to \{end}");
                 snakeCnt--;
-            }
-            if (!st.contains(start) && start < end && ladderCnt > 0) {
+            } else if (start < end && ladderCnt > 0) {
                 st.add(start);
                 Cell cell = getCell(start);
                 cell.jump = new Jump(start, end, Type.LADDER);
-                System.out.println(STR."\{cell.jump.type} jump created from \{start} to \{end}");
                 ladderCnt--;
             }
-
-
         }
-
     }
 
     public Cell getCell(int position) {
